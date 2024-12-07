@@ -2,17 +2,18 @@ import pandas as pd
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.remote.webdriver import WebDriver
+from selenium.webdriver.chrome.options import Options
 import time
 
 def extract_data_from_page(driver: WebDriver, url: str):
     driver.get(url)
-    time.sleep(4)
+    time.sleep(3)  
     
     data = {
         "url": url,
         "img_src": None,
-        "pre_text": None,
-        "p_text": None
+        "caption": None,
+        "page_name": None
     }
     
     try:
@@ -23,47 +24,51 @@ def extract_data_from_page(driver: WebDriver, url: str):
 
     try:
         pre_element = driver.find_element(By.CSS_SELECTOR, "pre")
-        data["pre_text"] = pre_element.text
+        data["caption"] = pre_element.text
     except Exception as e:
         print(f"Pre tag text not found on {url}: {e}")
 
     try:
         p_element = driver.find_element(By.CSS_SELECTOR, "div.flex.w-full.items-center.justify-end.lg\\:order-1 > a.flex.items-center > p.text-base.font-semibold.text-dark\\/3")
-        data["p_text"] = p_element.text
+        data["page_name"] = p_element.text
     except Exception as e:
         print(f"P tag text not found on {url}: {e}")
     
     return data
 
 def main():
-    links = [
-        "https://modai.fashion/pdp/Ddb9",
-        "https://modai.fashion/pdp/DeJV",
-        "https://modai.fashion/pdp/DezW",
-        "https://modai.fashion/pdp/DebQ",
-        "https://modai.fashion/pdp/Deif",
-        "https://modai.fashion/pdp/DdDV",
-        "https://modai.fashion/pdp/Dewn",
-        "https://modai.fashion/pdp/DeYB"
-    ]
+    input_file = "../data/lead_links/cleaned/lead_links_pt2.csv"
+    try:
+        with open(input_file, 'r') as file:
+            links = [line.strip() for line in file.readlines()]
+    except FileNotFoundError:
+        print(f"Error: File '{input_file}' not found.")
+        return
 
-    driver = webdriver.Chrome()
+    chrome_options = Options()
+    chrome_options.add_argument("--headless")    
+    chrome_options.add_argument("--no-sandbox") 
+    chrome_options.add_argument("--disable-dev-shm-usage")
+
+    driver = webdriver.Chrome(options=chrome_options)
     driver.implicitly_wait(10)
 
     data_list = []
     
     try:
         for link in links:
-            print(f"Processing {link}...")
-            data = extract_data_from_page(driver, link)
-            data_list.append(data)
+            if link:
+                print(f"Processing {link}...")
+                data = extract_data_from_page(driver, link)
+                data_list.append(data)
     
     finally:
         driver.quit()
 
     df = pd.DataFrame(data_list)
-    df.to_csv("extracted_data.csv", index=False)
+    df.to_csv("../data/post_data/extracted_data_pt2.csv", index=False)
     print("Data extraction complete. Saved to 'extracted_data.csv'.")
 
 if __name__ == "__main__":
     main()
+    

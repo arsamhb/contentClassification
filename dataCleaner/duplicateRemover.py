@@ -30,8 +30,8 @@ def remove_duplicate_links(input_file, output_file, summary_file):
         return -1
 
 
-input_file = "../data/raw/lead_links.csv"  # input file name
-output_file = "../data/cleaned/cleaned_lead_links.csv"  # Output file name
-output_summary_file = "../data/cleaned/summary.csv"  # Output file name
+input_file = "../data/lead_links/raw/lead_links.csv"  # input file name
+output_file = "../data/lead_links/cleaned/cleaned_lead_links.csv"  # Output file name
+output_summary_file = "../data/lead_links/cleaned/summary.csv"  # Output file name
 
 remove_duplicate_links(input_file, output_file, output_summary_file)
