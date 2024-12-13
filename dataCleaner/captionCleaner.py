@@ -12,26 +12,64 @@ def convert_persian_digits_to_english(text):
     text = text.translate(arabic_to_english_digits)
     return text
 
+def normalize_text(text):
+    if not isinstance(text, str):
+        return ""
+
+    text = re.sub(r'[ـ\-_]{2,}', '', text)
+    text = re.sub(r'\s+', ' ', text).strip()
+    return text
+
+def normalize_farsi_repetitions(text):
+    if not isinstance(text, str):
+        return ""
+    
+    # Define a regex pattern for Farsi characters with repeated occurrences
+    farsi_repetition_pattern = r'([\u0600-\u06FF])\1{2,}'
+    
+    # Replace repetitions of more than 2 characters with a single occurrence
+    text = re.sub(farsi_repetition_pattern, r'\1', text)
+    
+    # Normalize spaces
+    text = re.sub(r'\s+', ' ', text).strip()
+    return text
+
 def clean_caption(text):
     if not isinstance(text, str):
         return ""
     text = remove_emojis(text)
     text = text.lower()
     text = convert_persian_digits_to_english(text)
-
+    
     def replace_special_chars(match):
-        char = match.group()
-        before = match.start() - 1  
-        after = match.end()        
-        if re.match(r"^@[\w\-]+$", text) or re.match(r"^www\.[\w\-]+\.[a-z]+$", text):
-            return char
-        if before >= 0 and after < len(text):
-            if char in "_-" and text[before].strip() and text[after].strip():
-                return char
-        return " "
+        word = match.group()
 
-    # text = re.sub(r"[\n\t:\-_,/\\|?#؛▲…،!$%-^&ـ—•.*()\[\]{}<>~`+=;\'\"]", replace_special_chars, text)
-    text = re.sub(r"[\n\t:\-_,/\\|?#!$%-]", replace_special_chars, text)
+        # Define patterns for IDs and websites
+        id_pattern = r"@[\w\-.]+"
+        website_pattern = r"\b((http://|https://|www\.)?[\w\-.]+\.[a-z]{2,}(/[\S]*)?)\b"
+
+        extracted = []
+
+        id_matches = re.findall(id_pattern, word)
+        website_matches = re.findall(website_pattern, word)
+
+        extracted.extend(id_matches)
+        extracted.extend([m[0] for m in website_matches])
+
+        for match in id_matches + [m[0] for m in website_matches]:
+            word = word.replace(match, "")
+
+        cleaned_word = re.sub(r"[:\-_/\\|?#!$%-&*()\[\]{˚⋆𝜚𝜗}<—•>ⓒ»«』✸『‐✯〗؛–☻°■“”─━〖✾؟~▲+=·.,^…،;ـ✰●★\'\"]", " ", word)
+        cleaned_word = re.sub(r"\s+", " ", cleaned_word).strip()
+
+        return " ".join(extracted + [cleaned_word]).strip()
+    
+    text = re.sub(r"[\S]+", replace_special_chars, text)
+
+    text = normalize_text(text)
+
+    text = normalize_farsi_repetitions(text)
+
     text = re.sub(r"\s+", " ", text).strip()
     return text
 
@@ -40,7 +78,6 @@ data = pd.read_csv(file_name)
 
 data['caption'] = data['caption'].apply(clean_caption)
 
-# Save the cleaned dataset
 output_file_name = "./../data/post_data/extracted_data_full_cleaned.csv"
 data[['caption']].to_csv(output_file_name, index=False)
 
