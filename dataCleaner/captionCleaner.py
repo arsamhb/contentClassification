@@ -58,7 +58,7 @@ def clean_caption(text):
 
         for match in id_matches + [m[0] for m in website_matches]:
             word = word.replace(match, "")
-
+        # MISSED SPECIAL CHARACTERS ☟ ٫
         cleaned_word = re.sub(r"[:\-_/\\|?#!$%-&*()\[\]{˚⋆𝜚𝜗}<—•>ⓒ»«』✸『‐✯〗؛–☻°■“”─━〖✾؟~▲+=·.,^…،;ـ✰●★\'\"]", " ", word)
         cleaned_word = re.sub(r"\s+", " ", cleaned_word).strip()
 
