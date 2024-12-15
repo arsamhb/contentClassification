@@ -519,6 +519,10 @@ colors = [
     "آدامسی",
 ]
 
+# تلگرا شماره O
+# تلفن O
+# ثابت O
+
 
 def detect_persian_mobile_number(text):
     if not isinstance(text, str):
