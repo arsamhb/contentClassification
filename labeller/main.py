@@ -211,7 +211,7 @@ def does_token_contain_irrelevant_term(token):
 
 
 def does_token_contains_connector_words(token):
-    connector_words = ["و", "تا", "از", "به","ta"]
+    connector_words = ["و", "تا", "از", "به", "ta"]
 
     pattern = rf"({'|'.join(map(re.escape, connector_words))})"
 
@@ -232,15 +232,15 @@ def tokenize_and_label(text):
 
         if does_it_contain_price_appendix(token, price_appendix_terms):
             if (
-                i > 0
+                i < len(tokens) - 1
                 and tokens[i + 1]
                 and is_it_irrelevant_digit(tokens[i - 1], next_token=tokens[i + 1])
-            ) or does_token_contain_irrelevant_term(token):
+                or does_token_contain_irrelevant_term(token)
+            ):
                 continue
 
             if (
-                i > 1
-                and is_it_irrelevant_digit(tokens[i - 1])
+                i > 1 and is_it_irrelevant_digit(tokens[i - 1])
             ) or does_token_contain_irrelevant_term(token):
                 continue
 
@@ -274,9 +274,7 @@ def tokenize_and_label(text):
             if i > 0 and is_it_irrelevant_digit(tokens[i - 1]):
                 continue
 
-            if i > 1 and is_it_irrelevant_digit(
-                tokens[i - 1]
-            ):
+            if i > 1 and is_it_irrelevant_digit(tokens[i - 1]):
                 continue
 
             if does_token_contain_irrelevant_term(tokens[i]):
@@ -312,8 +310,9 @@ def tokenize_and_label(text):
                         labels[j] = "I-PRICE"
                     j += 1
 
-                    if does_token_contains_connector_words(tokens[j]):
+                    if j < len(tokens) and tokens[j] and does_token_contains_connector_words(tokens[j]):
                         continue
+
 
             labels[i] = "B-PRICE"
 
@@ -329,7 +328,7 @@ def tokenize_and_label(text):
                     "از",
                     "به",
                     "ارسال",
-                    "کد"
+                    "کد",
                 ]:
                     labels[i - 1] = "B-PRICE"
                     labels[i] = "I-PRICE"
@@ -365,18 +364,24 @@ def tokenize_and_label(text):
     return list(zip(tokens, labels))
 
 
-def process_dataset(file_path, labeled_output_path, original_output_path):
+# def process_dataset(file_path, labeled_output_path, original_output_path):
+def process_dataset(file_path, labeled_output_path):
     data = pd.read_csv(file_path, header=None, names=["text"])
     data["text"] = data["text"].astype(str)
 
-    random_rows = data.sample(n=10)
+    # random_rows = data.sample(n=10)
 
-    random_rows.to_csv(
-        original_output_path, index=False, header=False, encoding="utf-8"
-    )
+    # random_rows.to_csv(
+    #     original_output_path, index=False, header=False, encoding="utf-8"
+    # )
 
     labeled_data = []
-    for _, row in random_rows.iterrows():
+    # for _, row in random_rows.iterrows():
+    #     text = row["text"]
+    #     tokenized_and_labeled = tokenize_and_label(text)
+    #     labeled_data.extend(tokenized_and_labeled + [("", "")])
+
+    for _, row in data.iterrows():
         text = row["text"]
         tokenized_and_labeled = tokenize_and_label(text)
         labeled_data.extend(tokenized_and_labeled + [("", "")])
@@ -389,8 +394,11 @@ def process_dataset(file_path, labeled_output_path, original_output_path):
                 f.write("\n")
 
 
-input_file = "./../data/post_data/extracted_data_full_cleaned.csv"
-output_file = "./../data/post_data/labeled_captions_test.txt"
-original_output_file = "./../data/post_data/original_captions_test.txt"
+input_file = "./../data/test/test_cleaned.csv"
+# input_file = "./../data/post_data/extracted_data_full_cleaned.csv"
+output_file = "./../data/test/test_labeled_captions.txt"
+# output_file = "./../data/post_data/labeled_captions.txt"
+# original_output_file = "./../data/post_data/original_captions_test.txt"
 
-process_dataset(input_file, output_file, original_output_file)
+# process_dataset(input_file, output_file, original_output_file)
+process_dataset(input_file, output_file)

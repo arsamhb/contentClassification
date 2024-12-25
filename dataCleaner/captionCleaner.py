@@ -36,7 +36,9 @@ def normalize_farsi_repetitions(text):
 
 def clean_caption(text):
     if not isinstance(text, str):
+        print("asdljlashfilsehfusuilhf")
         return ""
+    
     text = remove_emojis(text)
     text = text.lower()
     text = convert_persian_digits_to_english(text)
@@ -73,12 +75,14 @@ def clean_caption(text):
     text = re.sub(r"\s+", " ", text).strip()
     return text
 
-file_name = "./../data/post_data/extracted_data_full.csv"
+# file_name = "./../data/post_data/extracted_data_full.csv"
+file_name = "./../data/test/test.csv"
 data = pd.read_csv(file_name)
 
 data['caption'] = data['caption'].apply(clean_caption)
 
-output_file_name = "./../data/post_data/extracted_data_full_cleaned.csv"
+# output_file_name = "./../data/post_data/extracted_data_full_cleaned.csv"
+output_file_name = "./../data/test/test_cleaned.csv"
 data[['caption']].to_csv(output_file_name, index=False)
 
 print(f"Cleaned dataset saved as {output_file_name}")
