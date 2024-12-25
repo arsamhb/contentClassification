@@ -21,8 +21,8 @@ def convert_file_digits(input_file, output_file):
 
 
 # File paths
-input_file = "./../data/test/test_cleaned_text.txt"
-output_file = "./../data/test/test_captions_persian_digits.txt"
+input_file = "./../data/post_data/extracted_data_full_cleaned.txt"
+output_file = "./../data/post_data/extracted_data_full_cleaned_persianed_digits.txt"
 
 # Process the file
 convert_file_digits(input_file, output_file)
