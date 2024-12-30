@@ -33,7 +33,7 @@ def extract_price(text):
 file_path = "./../data/post_data/extracted_data_full_cleaned_persianed_digits.txt"
 data = pd.read_csv(file_path, header=None, names=["sentence"])
 
-random_sentences = data.sample(n=10)
+random_sentences = data.sample(n=100)
 
 results = []
 for sentence in random_sentences["sentence"]:
@@ -41,7 +41,11 @@ for sentence in random_sentences["sentence"]:
     results.append({"sentence": sentence, "extracted_price": extracted_price})
 
 output_file = "extracted_prices.txt"
-results_df = pd.DataFrame(results)
-results_df.to_csv(output_file, index=False)
+
+with open(output_file, "w", encoding="utf-8") as f:
+    for result in results:
+        f.write(result["sentence"] + "\n")  
+        f.write(":::::::::::::::::::::::::" + str(result["extracted_price"]) + "\n") 
+        f.write("\n" + "-" * 50 + "\n\n")  
 
 print(f"Extracted prices saved to {output_file}")
